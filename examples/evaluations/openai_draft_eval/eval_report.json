@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-04-12T20:50:29.408Z",
+  "provider": "openai",
+  "model": "gpt-4.1-mini",
+  "datasetPath": "evals/draft_eval_cases.json",
+  "totalCases": 3,
+  "passedCases": 3,
+  "results": [
+    {
+      "caseId": "indoor_clear_path",
+      "description": "Complete indoor class with no unresolved logistics.",
+      "passed": true,
+      "actualReviewStatus": "ready_to_publish",
+      "expectedReviewStatus": "ready_to_publish",
+      "missingTerms": [],
+      "missingFlags": [],
+      "reviewFlags": []
+    },
+    {
+      "caseId": "missing_accessibility_and_age",
+      "description": "A request that should hold for manual review because the publishing prerequisites are incomplete.",
+      "passed": true,
+      "actualReviewStatus": "hold_for_manual_review",
+      "expectedReviewStatus": "hold_for_manual_review",
+      "missingTerms": [],
+      "missingFlags": [],
+      "reviewFlags": [
+        "Accessibility details still need confirmation.",
+        "Age guidance is missing."
+      ]
+    },
+    {
+      "caseId": "outdoor_weather_gap",
+      "description": "Outdoor workshop without a weather fallback.",
+      "passed": true,
+      "actualReviewStatus": "hold_for_manual_review",
+      "expectedReviewStatus": "hold_for_manual_review",
+      "missingTerms": [],
+      "missingFlags": [],
+      "reviewFlags": [
+        "Weather fallback is missing."
+      ]
+    }
+  ]
+}

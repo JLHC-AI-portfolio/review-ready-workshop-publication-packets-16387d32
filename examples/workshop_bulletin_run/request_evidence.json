@@ -1,0 +1,30 @@
+{
+  "requestId": "wrk_204",
+  "submittedAt": "2026-04-03T15:24:00Z",
+  "organizerName": "Maya Delgado",
+  "organizerEmail": "maya.delgado@example.org",
+  "workshopTitle": "Neighborhood Zine Studio",
+  "shortDescription": "A hands-on evening where neighbors draft tiny zines about favorite local spots and swap ideas for future community events.",
+  "fullDescription": "Participants spend ninety minutes making one-page zines, sharing short neighborhood recommendations, and leaving with a printed mini-guide. The organizer will bring paper, pens, and collage supplies. The workshop is designed for beginners and is meant to feed a small community bulletin feature later that week.",
+  "preferredDate": "2026-05-14 18:30",
+  "fallbackDate": "2026-05-16 11:00",
+  "durationMinutes": 90,
+  "venueName": "Maple Corner Library Terrace Room",
+  "venueType": "indoor",
+  "neighborhood": "Maple Grove",
+  "targetAudience": "Older teens and adults who want a low-pressure creative session",
+  "capacity": 18,
+  "accessibilityNotes": "Need to confirm whether the side entrance elevator will be available that evening.",
+  "ageGuidance": "",
+  "materialNeeds": [
+    "paper",
+    "pens",
+    "magazine clippings",
+    "glue sticks"
+  ],
+  "facilitatorBio": "Maya coordinates the neighborhood bulletin table and runs monthly storytelling circles at the library.",
+  "publicationGoal": "Create a website listing, a newsletter teaser, and a short note for the volunteer coordinators.",
+  "weatherPlan": "",
+  "internalNotes": "Organizer asked whether the library can share leftover folding tables.",
+  "policyAcknowledgement": true
+}

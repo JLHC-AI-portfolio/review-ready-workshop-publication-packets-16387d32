@@ -1,0 +1,38 @@
+[
+  {
+    "step": "source.load",
+    "status": "completed",
+    "at": "2026-04-12T20:50:11.987Z",
+    "detail": "Loaded request wrk_204 from fixtures/requests/neighborhood_zine_workshop_request.json."
+  },
+  {
+    "step": "normalize_request",
+    "status": "completed",
+    "at": "2026-04-12T20:50:12.095Z",
+    "detail": "Normalized request wrk_204 into a review-friendly payload."
+  },
+  {
+    "step": "draft_publication",
+    "status": "completed",
+    "at": "2026-04-12T20:50:15.030Z",
+    "detail": "Generated publication copy with provider openai."
+  },
+  {
+    "step": "policy_review",
+    "status": "flagged",
+    "at": "2026-04-12T20:50:15.032Z",
+    "detail": "Manual review is required because the request still contains unresolved publication prerequisites."
+  },
+  {
+    "step": "manual_review_gate",
+    "status": "flagged",
+    "at": "2026-04-12T20:50:15.036Z",
+    "detail": "Packet is on hold until a coordinator clears the flagged details."
+  },
+  {
+    "step": "finalize_outputs",
+    "status": "completed",
+    "at": "2026-04-12T20:50:15.039Z",
+    "detail": "Built packet with status hold_for_manual_review."
+  }
+]

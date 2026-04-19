@@ -4,7 +4,7 @@ Community Workshop Workflow Analytics turns one workshop request into drafted pu
 
 Small workshop teams often receive event requests as a mix of spreadsheet fields, short notes, and unresolved logistics. This repo shows how that evidence can become a review packet: the team can see what is ready to publish, what still needs a human check, and what copy was drafted for the website or newsletter.
 
-The public scenario is synthetic and harmless: every workshop detail, organizer, venue, date, and output is fictional. Sample dates are fixture metadata, not scheduling guidance; provenance details live in `docs/provenance.md`.
+The public scenario is synthetic and harmless: every workshop detail, organizer, venue, date, and output is fictional. Example dates are not a real calendar; the source note for the checked-in examples lives in `docs/provenance.md`.
 
 At a glance:
 
@@ -44,6 +44,19 @@ If you want the short walkthrough after scanning the snapshot above, open these 
 3. [`docs/methodology.md`](docs/methodology.md)
 
 Those three files are the main review path. They keep the packet walkthrough primary; eval outputs and live traces appear later in the README as secondary evidence.
+
+## Artifact Reading Map
+
+Use the Markdown files first when reviewing the workflow, then open JSON only when you want the backing evidence.
+
+| Reader need | Start with | Use later as technical evidence |
+| --- | --- | --- |
+| Understand the publication decision | `examples/workshop_bulletin_run/publication_packet.md` | `policy_decision.json`, `publication_packet.json`, `trace.json` |
+| See what a coordinator must review | `examples/workshop_bulletin_run/organizer_digest.md` | `request_evidence.json`, `normalized_request.json` |
+| Inspect the AI drafting check | `examples/evaluations/openai_draft_eval/eval_summary.md` | `eval_report.json`, `evals/draft_eval_cases.json` |
+| Confirm the live integration boundary | `examples/live_openai_trace/langsmith_trace_summary.md` | `langsmith_trace_manifest.json`, local untracked trace exports |
+
+The JSON and trace files are included so a technical reviewer can verify state, policy, and evaluation details. They are not the first-impression route for understanding what the workflow does.
 
 ## Evidence -> Decision -> Output
 

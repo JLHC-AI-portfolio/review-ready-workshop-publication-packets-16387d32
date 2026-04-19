@@ -4,7 +4,7 @@ Community Workshop Workflow Analytics turns one workshop request into drafted pu
 
 Small workshop teams often receive event requests as a mix of spreadsheet fields, short notes, and unresolved logistics. This repo shows how that evidence can become a review packet: the team can see what is ready to publish, what still needs a human check, and what copy was drafted for the website or newsletter.
 
-The public scenario is synthetic and harmless. Every workshop, organizer, venue, facilitator, date, and output in the repo is fictional, so the workflow can be inspected without exposing private operations or sensitive decisions. The 2026 workshop dates and run timestamps in the checked-in examples are sample fixture or capture dates, not current scheduling guidance.
+The public scenario is synthetic and harmless: every workshop detail, organizer, venue, date, and output is fictional. Sample dates are fixture metadata, not scheduling guidance; provenance details live in `docs/provenance.md`.
 
 At a glance:
 

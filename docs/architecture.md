@@ -1,5 +1,16 @@
 # Architecture
 
+This document explains how the workshop request moves from evidence to draft copy, review flags, and final packet files. A non-technical reviewer should take away that the workflow has clear inputs, clear outputs, and a visible stop point whenever a coordinator still needs to decide something.
+
+Reviewer view:
+
+- Inputs: one public fixture request, or an optional Google Sheets row supplied with local credentials.
+- Outputs: a publication packet, organizer digest, structured JSON evidence, and a compact run trace.
+- AI role: help draft and summarize public copy when the OpenAI path is enabled.
+- Safeguards: deterministic normalization and policy checks keep missing accessibility, age, weather, and acknowledgement details visible.
+- Human decision: the workflow records `hold_for_manual_review` instead of treating AI-drafted copy as approval.
+- Out of scope: production publishing, a multi-user approval UI, deployment monitoring, and organization-specific policy tuning.
+
 ## Workflow Slice
 
 The repo models one operational workflow: convert a workshop request into a reviewed publication packet and organizer digest.

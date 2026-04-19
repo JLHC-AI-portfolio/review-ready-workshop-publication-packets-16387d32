@@ -1,10 +1,18 @@
 # Community Workshop Workflow Analytics
 
-This repo demonstrates a stateful workflow analytics pattern for turning synthetic community workshop evidence into a reviewed publication packet and organizer digest, with one checked-in OpenAI sample and a reproducible no-secrets run.
+Small workshop teams often receive event requests as a mix of spreadsheet fields, short notes, and unresolved logistics. This repo shows how that evidence can become a review packet: the team can see what is ready to publish, what still needs a human check, and what copy was drafted for the website or newsletter.
 
-The scenario is synthetic and harmless. Every workshop, organizer, venue, facilitator, date, and output in the repo is fictional and checked in only to show the workflow in a safe public theme.
+The public scenario is synthetic and harmless. Every workshop, organizer, venue, facilitator, date, and output in the repo is fictional, so the workflow can be inspected without exposing private operations or sensitive decisions.
 
-The implementation keeps the transferable operating pattern visible: evidence is normalized into state, AI-assisted drafting can help prepare copy, deterministic policy rules decide whether publishing is ready or blocked, and the exported packet preserves reviewer flags alongside the generated outputs. It stops before a multi-user UI, deployment stack, monitoring fabric, or production publication connectors.
+At a glance:
+
+- Purpose: turn one workshop request into a publication packet and organizer digest.
+- Inputs: checked-in fixture evidence, or an optional Google Sheets row when local credentials are configured.
+- Outputs: website copy, newsletter copy, organizer notes, review flags, and a traceable decision.
+- AI role: draft and summarize copy in the live path; deterministic rules keep unresolved details visible.
+- Human review: the workflow can hold publication until a coordinator clears flagged items.
+- Limits: no production UI, deployment stack, monitoring system, or publishing connector is included.
+- Fast route: review the packet snapshot below, then open the three files in the 60-second path.
 
 ## Main Packet Snapshot
 
@@ -23,7 +31,7 @@ Organizer notes:
 Next action: Resolve the reviewer checklist before the packet is posted to public channels.
 ```
 
-This snapshot is taken directly from the checked-in sample artifacts in `examples/workshop_bulletin_run/`.
+For a non-technical reviewer, this is the main idea: the system can help prepare the packet, but it does not hide the missing elevator and age-guidance decisions. This snapshot is taken directly from the checked-in sample artifacts in `examples/workshop_bulletin_run/`.
 
 ## Start Here In 60 Seconds
 

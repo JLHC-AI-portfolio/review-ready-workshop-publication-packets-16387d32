@@ -1,5 +1,7 @@
 # Publication Packet
 
+Reader note: This packet is a review draft, not approval to publish. Use it to inspect the proposed public copy, the deterministic hold decision, and the unresolved items a coordinator must clear before anything goes to public channels.
+
 ## Status
 
 - Review status: hold_for_manual_review

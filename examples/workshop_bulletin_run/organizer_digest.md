@@ -1,5 +1,7 @@
 # Organizer Digest
 
+Reader note: This digest is the human follow-up view. It keeps the request summary, review flags, checklist, and next action in one place so a coordinator can resolve the hold before publication.
+
 ## Request
 
 - Title: Neighborhood Zine Studio

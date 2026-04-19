@@ -1,5 +1,7 @@
 # Live OpenAI Trace Summary
 
+Reader note: This summary proves that one live OpenAI run was traced and then reduced to safe, compact metadata for public review. It supports inspection of the integration boundary; the publication packet remains the main output a human should read.
+
 - `project_name`: `sanitized-live-review-trace`
 - `tracing_enabled`: `true`
 - `status`: `exported`

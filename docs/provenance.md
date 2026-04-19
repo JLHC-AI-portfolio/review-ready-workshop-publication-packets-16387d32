@@ -2,6 +2,8 @@
 
 The checked-in sample artifacts in this repo are intentionally split between a reproducible no-secrets rebuild and a captured live OpenAI evidence set.
 
+The 2026 workshop dates and run timestamps in the tracked examples are sample fixture or capture metadata. They make the packet inspectable; they are not live operating dates or a publishing calendar.
+
 ## Sample Packet
 
 - `examples/workshop_bulletin_run/` came from a fixture-backed `npm run demo:openai` run against `fixtures/requests/neighborhood_zine_workshop_request.json`.

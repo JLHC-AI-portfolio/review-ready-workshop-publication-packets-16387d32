@@ -1,8 +1,10 @@
-# Community Workshop Workflow Analytics
+# Workshop Requests To Review-Ready Publication Packets
+
+Community Workshop Workflow Analytics turns one workshop request into drafted public copy, explicit review flags, and an organizer digest before anything is published.
 
 Small workshop teams often receive event requests as a mix of spreadsheet fields, short notes, and unresolved logistics. This repo shows how that evidence can become a review packet: the team can see what is ready to publish, what still needs a human check, and what copy was drafted for the website or newsletter.
 
-The public scenario is synthetic and harmless. Every workshop, organizer, venue, facilitator, date, and output in the repo is fictional, so the workflow can be inspected without exposing private operations or sensitive decisions.
+The public scenario is synthetic and harmless. Every workshop, organizer, venue, facilitator, date, and output in the repo is fictional, so the workflow can be inspected without exposing private operations or sensitive decisions. The 2026 workshop dates and run timestamps in the checked-in examples are sample fixture or capture dates, not current scheduling guidance.
 
 At a glance:
 
@@ -20,7 +22,7 @@ The checked-in sample keeps the core review path visible in the README itself:
 
 | Evidence | Decision | Output |
 | --- | --- | --- |
-| The request still needs elevator confirmation and leaves age guidance blank. | `hold_for_manual_review` with explicit reviewer flags. | The workflow still drafts the website card and newsletter snippet, then carries the unresolved items into the organizer notes and reviewer checklist. |
+| The request still needs elevator confirmation and leaves age guidance blank. | `hold_for_manual_review` with explicit reviewer flags. | The workflow still drafts the website card and newsletter snippet, then carries the unresolved items into the packet next action and organizer digest checklist. |
 
 ```text
 Status: hold_for_manual_review
@@ -49,7 +51,8 @@ The inline snapshot above comes from these checked-in files:
 
 - [`examples/workshop_bulletin_run/request_evidence.json`](examples/workshop_bulletin_run/request_evidence.json) shows a neighborhood zine workshop where elevator availability still needs confirmation and age guidance is blank.
 - [`examples/workshop_bulletin_run/policy_decision.json`](examples/workshop_bulletin_run/policy_decision.json) records `hold_for_manual_review` because those publishing prerequisites remain unresolved.
-- [`examples/workshop_bulletin_run/publication_packet.md`](examples/workshop_bulletin_run/publication_packet.md) still emits the website card, newsletter snippet, and reviewer checklist needed to finish the decision.
+- [`examples/workshop_bulletin_run/publication_packet.md`](examples/workshop_bulletin_run/publication_packet.md) still emits the website card, newsletter snippet, hold status, and next action.
+- [`examples/workshop_bulletin_run/organizer_digest.md`](examples/workshop_bulletin_run/organizer_digest.md) carries the reviewer checklist a coordinator uses to finish the decision.
 
 That keeps the main review path visible before installation and before any extra clicks.
 

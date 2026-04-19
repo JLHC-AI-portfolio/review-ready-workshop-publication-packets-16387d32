@@ -102,7 +102,7 @@ The policy gate is intentionally explicit and easy to audit. The workflow holds 
 - organizer policy acknowledgement is missing;
 - the drafting step surfaces new policy concerns worth checking before publication.
 
-The gate does not attempt to auto-resolve those issues. It records the hold status, adds a reviewer checklist, and still emits a publication draft so coordinators can inspect the draft text alongside the gate decision.
+The gate does not attempt to auto-resolve those issues. It records the hold status, adds the reviewer checklist to the organizer digest, and still emits a publication draft so coordinators can inspect the draft text alongside the gate decision.
 
 ## Output Packet
 

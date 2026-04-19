@@ -1,0 +1,39 @@
+{
+  "accessibility": {
+    "status": "needs_confirmation",
+    "note": "Need to confirm whether the side entrance elevator will be available that evening.",
+    "evidence": "Need to confirm whether the side entrance elevator will be available that evening.",
+    "confidence": "high"
+  },
+  "ageGuidance": {
+    "status": "missing",
+    "note": "Not provided.",
+    "evidence": null,
+    "confidence": "high"
+  },
+  "weatherFallback": {
+    "status": "not_applicable",
+    "note": "Indoor venue; fallback not required.",
+    "evidence": null,
+    "confidence": "high"
+  },
+  "policyAcknowledgement": {
+    "status": "confirmed",
+    "note": "Organizer acknowledged the publication policy.",
+    "evidence": "true",
+    "confidence": "high"
+  },
+  "logisticsSummary": "Capacity 18; materials: paper, pens, magazine clippings, glue sticks; accessibility: Need to confirm whether the side entrance elevator will be available that evening.",
+  "riskSignals": [
+    {
+      "concern": "Accessibility details still need confirmation before publication.",
+      "evidence": "Need to confirm whether the side entrance elevator will be available that evening.",
+      "severity": "review_required"
+    },
+    {
+      "concern": "Age guidance is missing from the request.",
+      "evidence": "The age guidance field is empty.",
+      "severity": "review_required"
+    }
+  ]
+}

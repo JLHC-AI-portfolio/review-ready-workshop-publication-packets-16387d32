@@ -1,0 +1,12 @@
+{
+  "status": "hold_for_manual_review",
+  "reviewFlags": [
+    "Accessibility details still need confirmation.",
+    "Age guidance is missing."
+  ],
+  "reviewerChecklist": [
+    "Confirm the published accessibility note with the venue before posting.",
+    "Ask the organizer for a clear age guidance line or family participation note."
+  ],
+  "decisionRationale": "Manual review is required because the request still contains unresolved publication prerequisites."
+}

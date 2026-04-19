@@ -1,0 +1,44 @@
+{
+  "requestId": "wrk_204",
+  "title": "Neighborhood Zine Studio",
+  "summary": "A hands-on evening where neighbors draft tiny zines about favorite local spots and swap ideas for future community events.",
+  "fullDescription": "Participants spend ninety minutes making one-page zines, sharing short neighborhood recommendations, and leaving with a printed mini-guide. The organizer will bring paper, pens, and collage supplies. The workshop is designed for beginners and is meant to feed a small community bulletin feature later that week.",
+  "scheduleLabel": "Preferred: 2026-05-14 18:30; backup: 2026-05-16 11:00",
+  "durationLabel": "90 minutes",
+  "locationLabel": "Maple Corner Library Terrace Room (Maple Grove)",
+  "audienceLabel": "Older teens and adults who want a low-pressure creative session",
+  "logisticsSummary": "Capacity 18; materials: paper, pens, magazine clippings, glue sticks; accessibility: Need to confirm whether the side entrance elevator will be available that evening.",
+  "organizerSummary": "Maya Delgado <maya.delgado@example.org>",
+  "facilitatorBio": "Maya coordinates the neighborhood bulletin table and runs monthly storytelling circles at the library.",
+  "publicationGoal": "Create a website listing, a newsletter teaser, and a short note for the volunteer coordinators.",
+  "materialSummary": "paper, pens, magazine clippings, glue sticks",
+  "accessibilityStatus": {
+    "note": "Need to confirm whether the side entrance elevator will be available that evening.",
+    "isTentative": true
+  },
+  "ageGuidanceStatus": {
+    "note": "Not provided.",
+    "isMissing": true
+  },
+  "weatherStatus": {
+    "note": "Indoor venue; fallback not required.",
+    "requiresFallback": false
+  },
+  "policyAcknowledged": true,
+  "interpretationConcerns": [
+    {
+      "concern": "Accessibility details still need confirmation before publication.",
+      "evidence": "Need to confirm whether the side entrance elevator will be available that evening.",
+      "severity": "review_required"
+    },
+    {
+      "concern": "Age guidance is missing from the request.",
+      "evidence": "The age guidance field is empty.",
+      "severity": "review_required"
+    }
+  ],
+  "riskSignals": [
+    "Accessibility details still need confirmation before publication.",
+    "Age guidance is missing from the request."
+  ]
+}

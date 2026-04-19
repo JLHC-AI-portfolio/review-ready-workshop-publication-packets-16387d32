@@ -1,0 +1,35 @@
+{
+  "name": "community-workshop-publishing-workflow",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Public workflow analytics reference for turning workshop evidence into reviewed publication packets.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "demo": "tsx src/cli.ts run --source fixture --provider deterministic --fixture fixtures/requests/neighborhood_zine_workshop_request.json --output .local/demo-run",
+    "demo:openai": "tsx src/cli.ts run --source fixture --provider openai --fixture fixtures/requests/neighborhood_zine_workshop_request.json --output .local/demo-run-openai",
+    "eval": "tsx src/cli.ts eval --provider deterministic --dataset evals/draft_eval_cases.json --output .local/eval-run",
+    "eval:openai": "tsx src/cli.ts eval --provider openai --dataset evals/draft_eval_cases.json --output .local/eval-run-openai",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.1.39",
+    "@langchain/langgraph": "^1.2.8",
+    "@langchain/openai": "^1.4.4",
+    "dotenv": "^17.4.2",
+    "googleapis": "^171.4.0",
+    "langchain": "^1.3.1",
+    "langsmith": "^0.5.18",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
+}

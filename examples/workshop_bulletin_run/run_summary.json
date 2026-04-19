@@ -1,0 +1,21 @@
+{
+  "runId": "wrk_204-2026-04-12T20-50-11-985Z",
+  "generatedAt": "2026-04-12T20:50:11.985Z",
+  "sourceSummary": {
+    "mode": "fixture",
+    "label": "fixtures/requests/neighborhood_zine_workshop_request.json"
+  },
+  "drafter": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini"
+  },
+  "interpreter": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini"
+  },
+  "reviewOutcome": {
+    "status": "hold_for_manual_review",
+    "summary": "Packet is on hold until a coordinator clears the flagged details.",
+    "nextAction": "Resolve the reviewer checklist before the packet is posted to public channels."
+  }
+}

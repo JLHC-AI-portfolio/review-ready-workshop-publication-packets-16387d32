@@ -1,0 +1,56 @@
+{
+  "error": null,
+  "exported_at": "2026-04-13T06:03:42.661956+00:00",
+  "exported_trace_count": 5,
+  "project_name": "sanitized-live-review-trace",
+  "purpose": "Compact checked-in manifest for a traced live OpenAI run.",
+  "status": "exported",
+  "traces": [
+    {
+      "child_run_count": 6,
+      "end_time": "2026-04-13T06:02:04.458000+00:00",
+      "name": "LangGraph",
+      "run_type": "chain",
+      "start_time": "2026-04-13T06:02:04.437001+00:00",
+      "status": "success",
+      "trace_id": "019d856e-cd15-731d-9719-40130f04e1b3"
+    },
+    {
+      "child_run_count": 6,
+      "end_time": "2026-04-13T06:02:04.094000+00:00",
+      "name": "LangGraph",
+      "run_type": "chain",
+      "start_time": "2026-04-13T06:02:04.072001+00:00",
+      "status": "success",
+      "trace_id": "019d856e-cba8-729b-802c-1701fcf3e17a"
+    },
+    {
+      "child_run_count": 6,
+      "end_time": "2026-04-13T06:02:08.644000+00:00",
+      "name": "LangGraph",
+      "run_type": "chain",
+      "start_time": "2026-04-13T06:02:04.021001+00:00",
+      "status": "success",
+      "trace_id": "019d856e-cb75-77ec-8ae3-3774d1c050d4"
+    },
+    {
+      "child_run_count": 6,
+      "end_time": "2026-04-13T06:02:03.561000+00:00",
+      "name": "LangGraph",
+      "run_type": "chain",
+      "start_time": "2026-04-13T06:02:03.282001+00:00",
+      "status": "success",
+      "trace_id": "019d856e-c891-773d-9ca6-12d1b552984b"
+    },
+    {
+      "child_run_count": 6,
+      "end_time": "2026-04-13T06:02:03.520000+00:00",
+      "name": "LangGraph",
+      "run_type": "chain",
+      "start_time": "2026-04-13T06:02:03.268001+00:00",
+      "status": "success",
+      "trace_id": "019d856e-c883-715e-9cd5-3ab75261d384"
+    }
+  ],
+  "tracing_enabled": true
+}

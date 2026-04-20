@@ -4,14 +4,17 @@ import {
   START,
   StateGraph,
 } from "@langchain/langgraph";
+import type { RunnableConfig } from "@langchain/core/runnables";
 
 import {
   type DraftOutput,
   type NormalizedWorkshopRequest,
+  type PolicyAnalysis,
   type PolicyDecision,
   type PublicationPacket,
   type ReviewOutcome,
   type RunPacket,
+  type SemanticWorkshopNormalization,
   type SourceSummary,
   type TraceEvent,
   type WorkshopRequest,
@@ -20,15 +23,23 @@ import {
 import { normalizeWorkshopRequest } from "../normalization.js";
 import { buildOrganizerDigest, buildPublicationPacket, buildReviewOutcome } from "../output.js";
 import { evaluatePolicy } from "../policy.js";
+import {
+  createStepRunnableConfig,
+  createWorkflowRunnableConfig,
+} from "../runtime/runnableConfig.js";
 
 import type { DraftingService } from "../drafting/types.js";
 import type { InterpretationService } from "../interpretation/types.js";
+import type { PolicyAnalysisService } from "../policyAnalysis/types.js";
+import type { SemanticNormalizationService } from "../semanticNormalization/types.js";
 
 const WorkflowState = Annotation.Root({
   requestEvidence: Annotation<WorkshopRequest>(),
   requestInterpretation: Annotation<WorkshopRequestInterpretation>(),
+  semanticNormalization: Annotation<SemanticWorkshopNormalization>(),
   normalizedRequest: Annotation<NormalizedWorkshopRequest>(),
   draftOutput: Annotation<DraftOutput>(),
+  policyAnalysis: Annotation<PolicyAnalysis>(),
   policyDecision: Annotation<PolicyDecision>(),
   reviewOutcome: Annotation<ReviewOutcome>(),
   publicationPacket: Annotation<PublicationPacket>(),
@@ -41,22 +52,38 @@ const WorkflowState = Annotation.Root({
 
 interface WorkflowDependencies {
   interpreter: InterpretationService;
+  semanticNormalizer: SemanticNormalizationService;
   drafter: DraftingService;
+  policyAnalyzer: PolicyAnalysisService;
 }
 
 export async function runWorkshopPublicationWorkflow(input: {
   request: WorkshopRequest;
   sourceSummary: SourceSummary;
   interpreter: InterpretationService;
+  semanticNormalizer: SemanticNormalizationService;
   drafter: DraftingService;
+  policyAnalyzer: PolicyAnalysisService;
+  config?: RunnableConfig;
 }): Promise<RunPacket> {
   const graph = createWorkshopPublicationGraph({
     interpreter: input.interpreter,
+    semanticNormalizer: input.semanticNormalizer,
     drafter: input.drafter,
+    policyAnalyzer: input.policyAnalyzer,
   });
 
   const generatedAt = new Date().toISOString();
   const runId = `${input.request.requestId}-${generatedAt.replaceAll(/[:.]/g, "-")}`;
+  const graphConfig = createWorkflowRunnableConfig({
+    runId,
+    request: input.request,
+    sourceSummary: input.sourceSummary,
+    interpreter: input.interpreter.descriptor,
+    semanticNormalizer: input.semanticNormalizer.descriptor,
+    drafter: input.drafter.descriptor,
+    policyAnalyzer: input.policyAnalyzer.descriptor,
+  }, input.config);
   const result = await graph.invoke(
     {
       requestEvidence: input.request,
@@ -68,11 +95,7 @@ export async function runWorkshopPublicationWorkflow(input: {
         ),
       ],
     },
-    {
-      configurable: {
-        thread_id: runId,
-      },
-    },
+    graphConfig,
   );
 
   return {
@@ -81,10 +104,14 @@ export async function runWorkshopPublicationWorkflow(input: {
     sourceSummary: input.sourceSummary,
     drafter: input.drafter.descriptor,
     interpreter: input.interpreter.descriptor,
+    semanticNormalizer: input.semanticNormalizer.descriptor,
+    policyAnalyzer: input.policyAnalyzer.descriptor,
     requestEvidence: input.request,
     requestInterpretation: result.requestInterpretation,
+    semanticNormalization: result.semanticNormalization,
     normalizedRequest: result.normalizedRequest,
     draftOutput: result.draftOutput,
+    policyAnalysis: result.policyAnalysis,
     policyDecision: result.policyDecision,
     reviewOutcome: result.reviewOutcome,
     publicationPacket: result.publicationPacket,
@@ -94,9 +121,17 @@ export async function runWorkshopPublicationWorkflow(input: {
 }
 
 function createWorkshopPublicationGraph(deps: WorkflowDependencies) {
-  const interpretRequest = async (state: typeof WorkflowState.State) => {
+  const interpretRequest = async (
+    state: typeof WorkflowState.State,
+    config?: RunnableConfig,
+  ) => {
+    const stepConfig = createStepRunnableConfig(config, "interpret_request", {
+      provider: deps.interpreter.descriptor.provider,
+      model: deps.interpreter.descriptor.model,
+    });
     const requestInterpretation = await deps.interpreter.interpret(
       state.requestEvidence,
+      stepConfig,
     );
 
     return {
@@ -111,10 +146,37 @@ function createWorkshopPublicationGraph(deps: WorkflowDependencies) {
     };
   };
 
+  const semanticNormalize = async (
+    state: typeof WorkflowState.State,
+    config?: RunnableConfig,
+  ) => {
+    const stepConfig = createStepRunnableConfig(config, "semantic_normalization", {
+      provider: deps.semanticNormalizer.descriptor.provider,
+      model: deps.semanticNormalizer.descriptor.model,
+    });
+    const semanticNormalization = await deps.semanticNormalizer.normalize(
+      state.requestEvidence,
+      state.requestInterpretation,
+      stepConfig,
+    );
+
+    return {
+      semanticNormalization,
+      trace: [
+        createTraceEvent(
+          "semantic_normalization",
+          `Built semantic normalization with provider ${deps.semanticNormalizer.descriptor.provider}.`,
+          "completed",
+        ),
+      ],
+    };
+  };
+
   const normalizeRequest = (state: typeof WorkflowState.State) => {
     const normalizedRequest = normalizeWorkshopRequest(
       state.requestEvidence,
       state.requestInterpretation,
+      state.semanticNormalization,
     );
 
     return {
@@ -129,8 +191,18 @@ function createWorkshopPublicationGraph(deps: WorkflowDependencies) {
     };
   };
 
-  const draftPublication = async (state: typeof WorkflowState.State) => {
-    const draftOutput = await deps.drafter.draft(state.normalizedRequest);
+  const draftPublication = async (
+    state: typeof WorkflowState.State,
+    config?: RunnableConfig,
+  ) => {
+    const stepConfig = createStepRunnableConfig(config, "draft_publication", {
+      provider: deps.drafter.descriptor.provider,
+      model: deps.drafter.descriptor.model,
+    });
+    const draftOutput = await deps.drafter.draft(
+      state.normalizedRequest,
+      stepConfig,
+    );
 
     return {
       draftOutput,
@@ -144,10 +216,39 @@ function createWorkshopPublicationGraph(deps: WorkflowDependencies) {
     };
   };
 
+  const analyzePolicy = async (
+    state: typeof WorkflowState.State,
+    config?: RunnableConfig,
+  ) => {
+    const stepConfig = createStepRunnableConfig(config, "policy_analysis", {
+      provider: deps.policyAnalyzer.descriptor.provider,
+      model: deps.policyAnalyzer.descriptor.model,
+    });
+    const policyAnalysis = await deps.policyAnalyzer.analyze(
+      state.normalizedRequest,
+      state.draftOutput,
+      stepConfig,
+    );
+
+    return {
+      policyAnalysis,
+      trace: [
+        createTraceEvent(
+          "policy_analysis",
+          `Analyzed policy findings with provider ${deps.policyAnalyzer.descriptor.provider}.`,
+          policyAnalysis.findings.some((finding) => finding.severity === "review_required")
+            ? "flagged"
+            : "completed",
+        ),
+      ],
+    };
+  };
+
   const policyReview = (state: typeof WorkflowState.State) => {
     const policyDecision = evaluatePolicy(
       state.normalizedRequest,
       state.draftOutput,
+      state.policyAnalysis,
     );
 
     return {
@@ -219,16 +320,20 @@ function createWorkshopPublicationGraph(deps: WorkflowDependencies) {
 
   return new StateGraph(WorkflowState)
     .addNode("interpret_request", interpretRequest)
+    .addNode("semantic_normalization", semanticNormalize)
     .addNode("normalize_request", normalizeRequest)
     .addNode("draft_publication", draftPublication)
+    .addNode("policy_analysis", analyzePolicy)
     .addNode("policy_review", policyReview)
     .addNode("ready_to_publish", readyToPublish)
     .addNode("manual_review_gate", manualReviewGate)
     .addNode("finalize_outputs", finalizeOutputs)
     .addEdge(START, "interpret_request")
-    .addEdge("interpret_request", "normalize_request")
+    .addEdge("interpret_request", "semantic_normalization")
+    .addEdge("semantic_normalization", "normalize_request")
     .addEdge("normalize_request", "draft_publication")
-    .addEdge("draft_publication", "policy_review")
+    .addEdge("draft_publication", "policy_analysis")
+    .addEdge("policy_analysis", "policy_review")
     .addConditionalEdges("policy_review", (state) => {
       return state.policyDecision.status === "ready_to_publish"
         ? "ready_to_publish"

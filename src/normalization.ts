@@ -2,33 +2,35 @@ import {
   normalizedWorkshopRequestSchema,
   type InterpretationStatus,
   type NormalizedWorkshopRequest,
+  type SemanticWorkshopNormalization,
   type WorkshopRequest,
   type WorkshopRequestInterpretation,
 } from "./contracts.js";
 import { buildDeterministicWorkshopInterpretation } from "./interpretation/deterministicInterpretationService.js";
+import { buildDeterministicSemanticNormalization } from "./semanticNormalization/deterministicSemanticNormalizationService.js";
 
 export function normalizeWorkshopRequest(
   request: WorkshopRequest,
   interpretation: WorkshopRequestInterpretation = buildDeterministicWorkshopInterpretation(request),
+  semanticNormalization: SemanticWorkshopNormalization = buildDeterministicSemanticNormalization(
+    request,
+    interpretation,
+  ),
 ): NormalizedWorkshopRequest {
-  const materialSummary = request.materialNeeds.length
-    ? request.materialNeeds.join(", ")
-    : "No materials listed.";
-
   return normalizedWorkshopRequestSchema.parse({
     requestId: request.requestId,
-    title: request.workshopTitle.trim(),
-    summary: request.shortDescription.trim(),
+    title: semanticNormalization.normalizedTitle,
+    summary: semanticNormalization.normalizedSummary,
     fullDescription: request.fullDescription.trim(),
     scheduleLabel: formatScheduleLabel(request.preferredDate, request.fallbackDate),
     durationLabel: `${request.durationMinutes} minutes`,
     locationLabel: `${request.venueName.trim()} (${request.neighborhood.trim()})`,
-    audienceLabel: request.targetAudience.trim(),
-    logisticsSummary: interpretation.logisticsSummary,
+    audienceLabel: semanticNormalization.audienceLabel,
+    logisticsSummary: semanticNormalization.logisticsSummary,
     organizerSummary: `${request.organizerName.trim()} <${request.organizerEmail.trim()}>`,
     facilitatorBio: request.facilitatorBio.trim(),
-    publicationGoal: request.publicationGoal.trim(),
-    materialSummary,
+    publicationGoal: semanticNormalization.publicationGoal,
+    materialSummary: semanticNormalization.materialSummary,
     accessibilityStatus: {
       note: interpretation.accessibility.note,
       isTentative: isUnresolved(interpretation.accessibility.status),
@@ -43,6 +45,10 @@ export function normalizeWorkshopRequest(
     },
     policyAcknowledged: request.policyAcknowledgement,
     interpretationConcerns: interpretation.riskSignals,
+    semanticConstraints: semanticNormalization.derivedConstraints,
+    missingFacts: semanticNormalization.missingFacts,
+    contradictions: semanticNormalization.contradictions,
+    humanQuestions: semanticNormalization.humanQuestions,
     riskSignals: interpretation.riskSignals.map((signal) => signal.concern),
   });
 }

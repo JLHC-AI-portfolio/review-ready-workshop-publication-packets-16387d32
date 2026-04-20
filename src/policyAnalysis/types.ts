@@ -3,17 +3,17 @@ import type { RunnableConfig } from "@langchain/core/runnables";
 import type {
   DraftOutput,
   NormalizedWorkshopRequest,
+  PolicyAnalysis,
   ProviderDescriptor,
 } from "../contracts.js";
 
-export type DraftProvider = "deterministic" | "openai";
+export type PolicyAnalysisProvider = "deterministic" | "openai";
 
-export type DraftingDescriptor = ProviderDescriptor;
-
-export interface DraftingService {
-  descriptor: DraftingDescriptor;
-  draft(
+export interface PolicyAnalysisService {
+  descriptor: ProviderDescriptor;
+  analyze(
     request: NormalizedWorkshopRequest,
+    draft: DraftOutput,
     config?: RunnableConfig,
-  ): Promise<DraftOutput>;
+  ): Promise<PolicyAnalysis>;
 }

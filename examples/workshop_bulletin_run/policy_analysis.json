@@ -1,0 +1,21 @@
+{
+  "summary": "Policy analysis found review-required issues that the deterministic gate must adjudicate.",
+  "findings": [
+    {
+      "ruleId": "accessibility",
+      "finding": "Accessibility details still need confirmation before publication.",
+      "evidence": "Need to confirm whether the side entrance elevator will be available that evening.",
+      "severity": "review_required",
+      "recommendedQuestion": "Can the venue confirm the exact accessibility note that should be published?",
+      "confidence": "high"
+    },
+    {
+      "ruleId": "age-guidance",
+      "finding": "Age guidance is missing from the request.",
+      "evidence": "The age guidance field is empty.",
+      "severity": "review_required",
+      "recommendedQuestion": "What age guidance should appear in the public listing?",
+      "confidence": "high"
+    }
+  ]
+}

@@ -6,6 +6,14 @@
     "provider": "openai",
     "model": "gpt-4.1-mini"
   },
+  "semanticNormalizer": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini"
+  },
+  "policyAnalyzer": {
+    "provider": "openai",
+    "model": "gpt-4.1-mini"
+  },
   "datasetPath": "evals/draft_eval_cases.json",
   "totalCases": 3,
   "passedCases": 3,

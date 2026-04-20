@@ -20,6 +20,11 @@ export const interpretationConcernSeveritySchema = z.enum([
   "review_required",
 ]);
 
+export const providerDescriptorSchema = z.object({
+  provider: z.enum(["deterministic", "openai"]),
+  model: z.string().optional(),
+});
+
 export const workshopRequestSchema = z.object({
   requestId: z.string().min(1),
   submittedAt: z.string().min(1),
@@ -68,6 +73,27 @@ export const workshopRequestInterpretationSchema = z.object({
   riskSignals: z.array(interpretationConcernSchema).default([]),
 });
 
+export const semanticConstraintSchema = z.object({
+  constraint: z.string().min(1),
+  evidence: z.string().nullable(),
+  severity: interpretationConcernSeveritySchema,
+  confidence: interpretationConfidenceSchema,
+  recommendedQuestion: z.string().nullable(),
+});
+
+export const semanticWorkshopNormalizationSchema = z.object({
+  normalizedTitle: z.string().min(1),
+  normalizedSummary: z.string().min(1),
+  audienceLabel: z.string().min(1),
+  logisticsSummary: z.string().min(1),
+  publicationGoal: z.string().min(1),
+  materialSummary: z.string().min(1),
+  derivedConstraints: z.array(semanticConstraintSchema).default([]),
+  missingFacts: z.array(z.string()).default([]),
+  contradictions: z.array(z.string()).default([]),
+  humanQuestions: z.array(z.string()).default([]),
+});
+
 export const normalizedWorkshopRequestSchema = z.object({
   requestId: z.string(),
   title: z.string(),
@@ -96,6 +122,10 @@ export const normalizedWorkshopRequestSchema = z.object({
   }),
   policyAcknowledged: z.boolean(),
   interpretationConcerns: z.array(interpretationConcernSchema).default([]),
+  semanticConstraints: z.array(semanticConstraintSchema).default([]),
+  missingFacts: z.array(z.string()).default([]),
+  contradictions: z.array(z.string()).default([]),
+  humanQuestions: z.array(z.string()).default([]),
   riskSignals: z.array(z.string()),
 });
 
@@ -113,6 +143,29 @@ export const policyDecisionSchema = z.object({
   reviewFlags: z.array(z.string()).default([]),
   reviewerChecklist: z.array(z.string()).default([]),
   decisionRationale: z.string().min(1),
+});
+
+export const policyFindingSchema = z.object({
+  ruleId: z.enum([
+    "accessibility",
+    "age-guidance",
+    "weather-fallback",
+    "policy-acknowledgement",
+    "registration",
+    "safety",
+    "copy-risk",
+    "other",
+  ]),
+  finding: z.string().min(1),
+  evidence: z.string().nullable(),
+  severity: z.enum(["info", "review_note", "review_required"]),
+  recommendedQuestion: z.string().nullable(),
+  confidence: interpretationConfidenceSchema,
+});
+
+export const policyAnalysisSchema = z.object({
+  summary: z.string().min(1),
+  findings: z.array(policyFindingSchema).default([]),
 });
 
 export const reviewOutcomeSchema = z.object({
@@ -154,14 +207,15 @@ export const runPacketSchema = z.object({
     provider: z.enum(["deterministic", "openai"]),
     model: z.string().optional(),
   }),
-  interpreter: z.object({
-    provider: z.enum(["deterministic", "openai"]),
-    model: z.string().optional(),
-  }),
+  interpreter: providerDescriptorSchema,
+  semanticNormalizer: providerDescriptorSchema,
+  policyAnalyzer: providerDescriptorSchema,
   requestEvidence: workshopRequestSchema,
   requestInterpretation: workshopRequestInterpretationSchema,
+  semanticNormalization: semanticWorkshopNormalizationSchema,
   normalizedRequest: normalizedWorkshopRequestSchema,
   draftOutput: draftOutputSchema,
+  policyAnalysis: policyAnalysisSchema,
   policyDecision: policyDecisionSchema,
   reviewOutcome: reviewOutcomeSchema,
   publicationPacket: publicationPacketSchema,
@@ -182,10 +236,9 @@ export const evalReportSchema = z.object({
   generatedAt: z.string(),
   provider: z.enum(["deterministic", "openai"]),
   model: z.string().optional(),
-  interpreter: z.object({
-    provider: z.enum(["deterministic", "openai"]),
-    model: z.string().optional(),
-  }),
+  interpreter: providerDescriptorSchema,
+  semanticNormalizer: providerDescriptorSchema,
+  policyAnalyzer: providerDescriptorSchema,
   datasetPath: z.string(),
   totalCases: z.number().int().nonnegative(),
   passedCases: z.number().int().nonnegative(),
@@ -204,15 +257,22 @@ export const evalReportSchema = z.object({
 });
 
 export type WorkshopRequest = z.infer<typeof workshopRequestSchema>;
+export type ProviderDescriptor = z.infer<typeof providerDescriptorSchema>;
 export type InterpretationStatus = z.infer<typeof interpretationStatusSchema>;
 export type InterpretationConcern = z.infer<typeof interpretationConcernSchema>;
 export type WorkshopRequestInterpretation = z.infer<
   typeof workshopRequestInterpretationSchema
 >;
+export type SemanticConstraint = z.infer<typeof semanticConstraintSchema>;
+export type SemanticWorkshopNormalization = z.infer<
+  typeof semanticWorkshopNormalizationSchema
+>;
 export type NormalizedWorkshopRequest = z.infer<
   typeof normalizedWorkshopRequestSchema
 >;
 export type DraftOutput = z.infer<typeof draftOutputSchema>;
+export type PolicyFinding = z.infer<typeof policyFindingSchema>;
+export type PolicyAnalysis = z.infer<typeof policyAnalysisSchema>;
 export type PolicyDecision = z.infer<typeof policyDecisionSchema>;
 export type ReviewOutcome = z.infer<typeof reviewOutcomeSchema>;
 export type ReviewStatus = z.infer<typeof reviewStatusSchema>;

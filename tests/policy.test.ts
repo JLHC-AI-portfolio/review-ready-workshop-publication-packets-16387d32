@@ -189,4 +189,66 @@ describe("policy gate", () => {
       "Review interpreted evidence: Capacity is 14 and registration handling is not described.",
     ]);
   });
+
+  it("holds when policy analysis proposes an evidence-backed non-canonical finding", () => {
+    const normalized = normalizeWorkshopRequest({
+      requestId: "wrk_policy_analysis",
+      submittedAt: "2026-04-07T10:00:00Z",
+      organizerName: "Iris Chen",
+      organizerEmail: "iris.chen@example.org",
+      workshopTitle: "Tiny Repair Table",
+      shortDescription: "Neighbors bring small textiles for repair guidance.",
+      fullDescription: "Participants learn hand-stitching repair methods.",
+      preferredDate: "2026-05-12 17:00",
+      fallbackDate: "",
+      durationMinutes: 75,
+      venueName: "West Hall Room B",
+      venueType: "indoor",
+      neighborhood: "West Hall",
+      targetAudience: "Adults",
+      capacity: 12,
+      accessibilityNotes: "Room B is wheelchair accessible.",
+      ageGuidance: "Adults only.",
+      materialNeeds: ["needles", "thread"],
+      facilitatorBio: "Iris runs the repair table.",
+      publicationGoal: "Prepare a website listing.",
+      weatherPlan: "",
+      internalNotes: "",
+      policyAcknowledgement: true,
+    });
+
+    const decision = evaluatePolicy(
+      normalized,
+      {
+        bulletinBlurb: "Tiny Repair Table is a repair guidance session.",
+        newsletterSnippet: "Tiny Repair Table at West Hall.",
+        publicSummary: "Neighbors learn simple repairs.",
+        reviewNotes: [],
+        policyConcerns: [],
+        confidenceNote: "The request is otherwise complete.",
+      },
+      {
+        summary: "Policy analysis found a registration ambiguity.",
+        findings: [
+          {
+            ruleId: "registration",
+            finding: "Registration handling is unclear for a capacity-limited room.",
+            evidence: "Capacity is 12 and no registration process is described.",
+            severity: "review_required",
+            recommendedQuestion:
+              "How should participants register or be capped for this session?",
+            confidence: "high",
+          },
+        ],
+      },
+    );
+
+    expect(decision.status).toBe("hold_for_manual_review");
+    expect(decision.reviewFlags).toEqual([
+      "Registration handling is unclear for a capacity-limited room.",
+    ]);
+    expect(decision.reviewerChecklist).toEqual([
+      "Resolve policy finding: How should participants register or be capped for this session?",
+    ]);
+  });
 });

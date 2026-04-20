@@ -7,9 +7,11 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   draftOutputSchema,
   normalizedWorkshopRequestSchema,
+  policyAnalysisSchema,
   policyDecisionSchema,
   publicationPacketSchema,
   reviewOutcomeSchema,
+  semanticWorkshopNormalizationSchema,
   traceEventSchema,
   workshopRequestInterpretationSchema,
   workshopRequestSchema,
@@ -58,6 +60,22 @@ describe("published packet regression", () => {
       await readJson(
         new URL(
           "../examples/workshop_bulletin_run/normalized_request.json",
+          import.meta.url,
+        ),
+      ),
+    );
+    const expectedSemanticNormalization = semanticWorkshopNormalizationSchema.parse(
+      await readJson(
+        new URL(
+          "../examples/workshop_bulletin_run/semantic_normalization.json",
+          import.meta.url,
+        ),
+      ),
+    );
+    const expectedPolicyAnalysis = policyAnalysisSchema.parse(
+      await readJson(
+        new URL(
+          "../examples/workshop_bulletin_run/policy_analysis.json",
           import.meta.url,
         ),
       ),
@@ -118,6 +136,15 @@ describe("published packet regression", () => {
           return expectedInterpretation;
         },
       },
+      semanticNormalizer: {
+        descriptor: {
+          provider: "openai",
+          model: "gpt-4.1-mini",
+        },
+        async normalize() {
+          return expectedSemanticNormalization;
+        },
+      },
       drafter: {
         descriptor: {
           provider: "openai",
@@ -127,10 +154,21 @@ describe("published packet regression", () => {
           return expectedDraft;
         },
       },
+      policyAnalyzer: {
+        descriptor: {
+          provider: "openai",
+          model: "gpt-4.1-mini",
+        },
+        async analyze() {
+          return expectedPolicyAnalysis;
+        },
+      },
     });
 
     expect(run.requestInterpretation).toEqual(expectedInterpretation);
+    expect(run.semanticNormalization).toEqual(expectedSemanticNormalization);
     expect(run.normalizedRequest).toEqual(expectedNormalized);
+    expect(run.policyAnalysis).toEqual(expectedPolicyAnalysis);
     expect(run.policyDecision).toEqual(expectedPolicy);
     expect(run.reviewOutcome).toEqual(expectedRunSummary);
     expect(run.publicationPacket).toEqual(expectedPacket);
@@ -147,6 +185,12 @@ describe("published packet regression", () => {
     );
     const writtenInterpretation = workshopRequestInterpretationSchema.parse(
       await readJson(join(outputDir, "request_interpretation.json")),
+    );
+    const writtenSemanticNormalization = semanticWorkshopNormalizationSchema.parse(
+      await readJson(join(outputDir, "semantic_normalization.json")),
+    );
+    const writtenPolicyAnalysis = policyAnalysisSchema.parse(
+      await readJson(join(outputDir, "policy_analysis.json")),
     );
     const writtenPolicy = policyDecisionSchema.parse(
       await readJson(join(outputDir, "policy_decision.json")),
@@ -166,7 +210,9 @@ describe("published packet regression", () => {
       .map(stripTraceTiming);
 
     expect(writtenInterpretation).toEqual(expectedInterpretation);
+    expect(writtenSemanticNormalization).toEqual(expectedSemanticNormalization);
     expect(writtenNormalized).toEqual(expectedNormalized);
+    expect(writtenPolicyAnalysis).toEqual(expectedPolicyAnalysis);
     expect(writtenPolicy).toEqual(expectedPolicy);
     expect(writtenPacket).toEqual(expectedPacket);
     expect(writtenPublicationMarkdown).toBe(expectedPublicationMarkdown);

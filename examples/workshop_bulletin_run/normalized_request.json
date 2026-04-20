@@ -37,6 +37,31 @@
       "severity": "review_required"
     }
   ],
+  "semanticConstraints": [
+    {
+      "constraint": "Accessibility details still need confirmation before publication.",
+      "evidence": "Need to confirm whether the side entrance elevator will be available that evening.",
+      "severity": "review_required",
+      "confidence": "high",
+      "recommendedQuestion": "Can the venue confirm the exact accessibility note that should be published?"
+    },
+    {
+      "constraint": "Age guidance is missing from the request.",
+      "evidence": "The age guidance field is empty.",
+      "severity": "review_required",
+      "confidence": "high",
+      "recommendedQuestion": "What age guidance should appear in the public listing?"
+    }
+  ],
+  "missingFacts": [
+    "Accessibility details",
+    "Age guidance"
+  ],
+  "contradictions": [],
+  "humanQuestions": [
+    "Can the venue confirm the exact accessibility note that should be published?",
+    "What age guidance should appear in the public listing?"
+  ],
   "riskSignals": [
     "Accessibility details still need confirmation before publication.",
     "Age guidance is missing from the request."

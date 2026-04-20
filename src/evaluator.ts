@@ -1,19 +1,20 @@
-import { readFile } from "node:fs/promises";
-
-import { evalCaseSchema, evalReportSchema, type EvalReport } from "./contracts.js";
+import { evalReportSchema, type EvalReport } from "./contracts.js";
+import { loadEvalCases, scoreRunAgainstCase } from "./evals/scoring.js";
 import { runWorkshopPublicationWorkflow } from "./workflow/graph.js";
 
 import type { DraftingService } from "./drafting/types.js";
 import type { InterpretationService } from "./interpretation/types.js";
+import type { PolicyAnalysisService } from "./policyAnalysis/types.js";
+import type { SemanticNormalizationService } from "./semanticNormalization/types.js";
 
 export async function evaluateDraftingDataset(input: {
   datasetPath: string;
   interpreter: InterpretationService;
+  semanticNormalizer: SemanticNormalizationService;
   drafter: DraftingService;
+  policyAnalyzer: PolicyAnalysisService;
 }): Promise<EvalReport> {
-  const rawDataset = await readFile(input.datasetPath, "utf8");
-  const parsedDataset = JSON.parse(rawDataset) as unknown[];
-  const cases = parsedDataset.map((entry) => evalCaseSchema.parse(entry));
+  const cases = await loadEvalCases(input.datasetPath);
 
   const results = [];
 
@@ -25,43 +26,12 @@ export async function evaluateDraftingDataset(input: {
         label: `Eval case ${testCase.caseId}`,
       },
       interpreter: input.interpreter,
+      semanticNormalizer: input.semanticNormalizer,
       drafter: input.drafter,
+      policyAnalyzer: input.policyAnalyzer,
     });
 
-    const reviewFlags = run.policyDecision.reviewFlags.map((flag) =>
-      flag.toLowerCase(),
-    );
-    const combinedText = [
-      run.publicationPacket.websiteCard.summary,
-      run.publicationPacket.newsletterSnippet,
-      run.publicationPacket.bulletinBlurb,
-      run.organizerDigest,
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    const missingTerms = testCase.requiredTerms.filter(
-      (term) => !combinedText.includes(term.toLowerCase()),
-    );
-    const missingFlags = testCase.expectedFlags.filter(
-      (flag) => !reviewFlags.some((candidate) => candidate.includes(flag.toLowerCase())),
-    );
-    const actualReviewStatus = run.reviewOutcome.status;
-    const passed =
-      missingTerms.length === 0 &&
-      missingFlags.length === 0 &&
-      actualReviewStatus === testCase.expectedReviewStatus;
-
-    results.push({
-      caseId: testCase.caseId,
-      description: testCase.description,
-      passed,
-      actualReviewStatus,
-      expectedReviewStatus: testCase.expectedReviewStatus,
-      missingTerms,
-      missingFlags,
-      reviewFlags: run.policyDecision.reviewFlags,
-    });
+    results.push(scoreRunAgainstCase(run, testCase));
   }
 
   return evalReportSchema.parse({
@@ -69,6 +39,8 @@ export async function evaluateDraftingDataset(input: {
     provider: input.drafter.descriptor.provider,
     model: input.drafter.descriptor.model,
     interpreter: input.interpreter.descriptor,
+    semanticNormalizer: input.semanticNormalizer.descriptor,
+    policyAnalyzer: input.policyAnalyzer.descriptor,
     datasetPath: input.datasetPath,
     totalCases: results.length,
     passedCases: results.filter((result) => result.passed).length,

@@ -4,6 +4,8 @@ import { createDraftingService } from "./drafting/createDraftingService.js";
 import { evaluateDraftingDataset } from "./evaluator.js";
 import { createInterpretationService } from "./interpretation/createInterpretationService.js";
 import { writeEvalReport, writeRunPacket } from "./output.js";
+import { createPolicyAnalysisService } from "./policyAnalysis/createPolicyAnalysisService.js";
+import { createSemanticNormalizationService } from "./semanticNormalization/createSemanticNormalizationService.js";
 import { loadWorkshopRequestFromSource, type SourceMode } from "./source/index.js";
 import { runWorkshopPublicationWorkflow } from "./workflow/graph.js";
 
@@ -42,12 +44,20 @@ async function runCommand(args: string[]): Promise<void> {
   const interpreter = await createInterpretationService(
     provider as "deterministic" | "openai",
   );
+  const semanticNormalizer = await createSemanticNormalizationService(
+    provider as "deterministic" | "openai",
+  );
   const drafter = await createDraftingService(provider as "deterministic" | "openai");
+  const policyAnalyzer = await createPolicyAnalysisService(
+    provider as "deterministic" | "openai",
+  );
   const packet = await runWorkshopPublicationWorkflow({
     request,
     sourceSummary,
     interpreter,
+    semanticNormalizer,
     drafter,
+    policyAnalyzer,
   });
 
   await writeRunPacket(output, packet);
@@ -64,11 +74,19 @@ async function evalCommand(args: string[]): Promise<void> {
   const interpreter = await createInterpretationService(
     provider as "deterministic" | "openai",
   );
+  const semanticNormalizer = await createSemanticNormalizationService(
+    provider as "deterministic" | "openai",
+  );
   const drafter = await createDraftingService(provider as "deterministic" | "openai");
+  const policyAnalyzer = await createPolicyAnalysisService(
+    provider as "deterministic" | "openai",
+  );
   const report = await evaluateDraftingDataset({
     datasetPath,
     interpreter,
+    semanticNormalizer,
     drafter,
+    policyAnalyzer,
   });
 
   await writeEvalReport(output, report);

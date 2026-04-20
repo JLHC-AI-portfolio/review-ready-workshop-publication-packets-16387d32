@@ -13,6 +13,8 @@
     "demo:openai": "tsx src/cli.ts run --source fixture --provider openai --fixture fixtures/requests/neighborhood_zine_workshop_request.json --output .local/demo-run-openai",
     "eval": "tsx src/cli.ts eval --provider deterministic --dataset evals/draft_eval_cases.json --output .local/eval-run",
     "eval:openai": "tsx src/cli.ts eval --provider openai --dataset evals/draft_eval_cases.json --output .local/eval-run-openai",
+    "eval:langsmith": "tsx src/evals/langsmithEval.ts --provider deterministic --dataset evals/draft_eval_cases.json",
+    "eval:openai:langsmith": "tsx src/evals/langsmithEval.ts --provider openai --dataset evals/draft_eval_cases.json",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

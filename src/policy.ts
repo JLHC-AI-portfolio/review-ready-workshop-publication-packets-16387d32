@@ -3,7 +3,9 @@ import {
   type DraftOutput,
   type InterpretationConcern,
   type NormalizedWorkshopRequest,
+  type PolicyAnalysis,
   type PolicyDecision,
+  type PolicyFinding,
 } from "./contracts.js";
 
 type CanonicalPolicyRule = {
@@ -57,6 +59,7 @@ const canonicalPolicyRules: CanonicalPolicyRule[] = [
 export function evaluatePolicy(
   request: NormalizedWorkshopRequest,
   draft: DraftOutput,
+  policyAnalysis?: PolicyAnalysis,
 ): PolicyDecision {
   const reviewFlags = new Set<string>();
   const reviewerChecklist = new Set<string>();
@@ -80,12 +83,22 @@ export function evaluatePolicy(
     });
   }
 
-  for (const concern of draft.policyConcerns) {
-    if (matchesActiveCanonicalRule(concern, activeRuleIds)) {
-      continue;
+  if (policyAnalysis) {
+    for (const finding of policyAnalysis.findings) {
+      addPolicyFinding(finding, {
+        activeRuleIds,
+        reviewFlags,
+        reviewerChecklist,
+      });
     }
+  } else {
+    for (const concern of draft.policyConcerns) {
+      if (matchesActiveCanonicalRule(concern, activeRuleIds)) {
+        continue;
+      }
 
-    reviewFlags.add(concern);
+      reviewFlags.add(concern);
+    }
   }
 
   const status = reviewFlags.size
@@ -101,6 +114,38 @@ export function evaluatePolicy(
         ? "All required publication details are present and no manual review flags remain."
         : "Manual review is required because the request still contains unresolved publication prerequisites.",
   });
+}
+
+function addPolicyFinding(
+  finding: PolicyFinding,
+  target: {
+    activeRuleIds: Set<CanonicalPolicyRule["id"]>;
+    reviewFlags: Set<string>;
+    reviewerChecklist: Set<string>;
+  },
+): void {
+  if (finding.severity !== "review_required") {
+    return;
+  }
+
+  if (matchesActiveCanonicalRuleId(finding.ruleId, target.activeRuleIds)) {
+    return;
+  }
+
+  if (matchesActiveCanonicalRule(finding.finding, target.activeRuleIds)) {
+    return;
+  }
+
+  target.reviewFlags.add(finding.finding);
+
+  const checklistItem = finding.recommendedQuestion
+    ? `Resolve policy finding: ${finding.recommendedQuestion}`
+    : finding.evidence
+      ? `Review policy evidence: ${finding.evidence}`
+      : "";
+  if (checklistItem) {
+    target.reviewerChecklist.add(checklistItem);
+  }
 }
 
 function addInterpretedConcern(
@@ -124,6 +169,18 @@ function addInterpretedConcern(
   if (concern.evidence) {
     target.reviewerChecklist.add(`Review interpreted evidence: ${concern.evidence}`);
   }
+}
+
+function matchesActiveCanonicalRuleId(
+  ruleId: PolicyFinding["ruleId"],
+  activeRuleIds: Set<CanonicalPolicyRule["id"]>,
+): boolean {
+  return (
+    ruleId === "accessibility" ||
+    ruleId === "age-guidance" ||
+    ruleId === "weather-fallback" ||
+    ruleId === "policy-acknowledgement"
+  ) && activeRuleIds.has(ruleId);
 }
 
 function matchesActiveCanonicalRule(

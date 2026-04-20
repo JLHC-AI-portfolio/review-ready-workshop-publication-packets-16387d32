@@ -22,7 +22,7 @@ const ORGANIZER_DIGEST_READER_NOTE =
   "Reader note: This digest is the human follow-up view. It keeps the request summary, review flags, checklist, and next action in one place so a coordinator can resolve the hold before publication.";
 
 const EVAL_SUMMARY_READER_NOTE =
-  "Reader note: This is technical evidence for the AI-assisted interpretation and drafting boundary. It shows whether outputs preserved required facts and review flags on a small checked-in dataset; it is not a claim that every future workshop request will pass without human review.";
+  "Reader note: This is technical evidence for the AI-assisted interpretation, semantic-normalization, policy-analysis, and drafting boundary. It shows whether outputs preserved required facts and review flags on a small checked-in dataset; it is not a claim that every future workshop request will pass without human review.";
 
 export function buildReviewOutcome(policyDecision: PolicyDecision): ReviewOutcome {
   return reviewOutcomeSchema.parse({
@@ -116,10 +116,15 @@ export async function writeRunPacket(
       validated.requestInterpretation,
     ),
     writeJson(
+      join(outputDir, "semantic_normalization.json"),
+      validated.semanticNormalization,
+    ),
+    writeJson(
       join(outputDir, "normalized_request.json"),
       validated.normalizedRequest,
     ),
     writeJson(join(outputDir, "draft_output.json"), validated.draftOutput),
+    writeJson(join(outputDir, "policy_analysis.json"), validated.policyAnalysis),
     writeJson(join(outputDir, "policy_decision.json"), validated.policyDecision),
     writeJson(
       join(outputDir, "publication_packet.json"),
@@ -133,7 +138,9 @@ export async function writeRunPacket(
         generatedAt: validated.generatedAt,
         sourceSummary: validated.sourceSummary,
         interpreter: validated.interpreter,
+        semanticNormalizer: validated.semanticNormalizer,
         drafter: validated.drafter,
+        policyAnalyzer: validated.policyAnalyzer,
         reviewOutcome: validated.reviewOutcome,
       },
     ),
@@ -213,13 +220,15 @@ function renderEvalSummaryMarkdown(report: EvalReport): string {
     })
     .join("\n");
 
-  return `# Interpretation And Drafting Eval Summary
+  return `# AI-Assisted Workflow Eval Summary
 
 ${EVAL_SUMMARY_READER_NOTE}
 
 - Provider: ${report.provider}
 - Model: ${report.model ?? "n/a"}
 - Interpreter: ${report.interpreter.provider}${report.interpreter.model ? ` (${report.interpreter.model})` : ""}
+- Semantic normalizer: ${report.semanticNormalizer.provider}${report.semanticNormalizer.model ? ` (${report.semanticNormalizer.model})` : ""}
+- Policy analyzer: ${report.policyAnalyzer.provider}${report.policyAnalyzer.model ? ` (${report.policyAnalyzer.model})` : ""}
 - Passed: ${report.passedCases}/${report.totalCases}
 - Dataset: ${report.datasetPath}
 

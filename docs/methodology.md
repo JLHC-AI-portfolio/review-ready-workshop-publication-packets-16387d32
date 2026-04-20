@@ -4,7 +4,7 @@
 
 Community workshop publishing looks simple until the last-mile review work is made explicit. Organizers often submit a single request record that mixes public copy, logistics, and unresolved operational details. The workflow in this repo treats that request as evidence that must be interpreted and normalized before any drafting or publication decision happens.
 
-For a coordinator, the flow is intentionally simple: one request arrives, the workflow separates known facts from uncertain details, AI helps interpret and draft, deterministic rules decide whether unresolved facts require review, and the final packet shows what a person must check before publication.
+For a coordinator, the flow is intentionally simple: one request arrives, AI separates known facts from uncertain details, AI normalizes the request into constraints and questions, AI drafts copy and policy findings, deterministic rules adjudicate whether unresolved facts require review, and the final packet shows what a person must check before publication.
 
 ## Interpretation Layer
 
@@ -18,19 +18,25 @@ The interpretation output classifies:
 - policy acknowledgement evidence;
 - review-required risk signals.
 
-The model is allowed to identify uncertainty, missing information, contradictions, and evidence-backed review blockers. It is not allowed to approve publication or invent missing facts. Its output becomes evidence for the deterministic normalization and policy gate.
+The model is allowed to identify uncertainty, missing information, contradictions, and evidence-backed review blockers. It is not allowed to approve publication or invent missing facts. Its output becomes evidence for semantic normalization and the deterministic policy gate.
 
-## Normalization Rules
+## Semantic Normalization Layer
 
-The normalization step stabilizes request evidence and interpreted fields into a consistent internal contract.
+The live OpenAI path then performs semantic normalization. This step turns the interpreted evidence into a stable, reviewable contract: normalized labels, logistics summary, missing facts, contradictions, derived constraints, and concrete human follow-up questions. The deterministic fallback implements the same contract from the interpreted fields so the repo remains runnable without secrets.
 
-Derived fields:
+The model may improve clarity and grouping, but it must not invent operational truth. Missing accessibility, age guidance, weather fallback, policy acknowledgement, registration handling, or other blockers must remain visible as constraints or human questions.
+
+The deterministic `normalize_request` step then converts that semantic output into the internal `NormalizedWorkshopRequest` shape used by drafting, policy analysis, packet rendering, and regression tests.
+
+## Deterministic Normalization Rules
+
+Derived fields still handled by deterministic code:
 
 - `scheduleLabel` combines the preferred date and fallback date into one publication-safe string.
 - `durationLabel` converts raw minutes into consistent copy.
 - `locationLabel` pairs venue and neighborhood for channel reuse.
-- `logisticsSummary` compresses capacity, materials, and accessibility context.
-- `riskSignals` carries interpreted review concerns forward into drafting and policy review.
+- `riskSignals` carries interpreted review concerns forward into drafting and policy analysis.
+- `semanticConstraints`, `missingFacts`, `contradictions`, and `humanQuestions` carry semantic normalization evidence forward without changing the final decision authority.
 
 Interpretation rules:
 
@@ -40,7 +46,7 @@ Interpretation rules:
 
 ## Prompt Contract
 
-The OpenAI interpretation path receives the raw request JSON and must return structured evidence classification. The OpenAI drafting path receives the normalized request JSON plus interpreted risk signals. It must return structured output with:
+The OpenAI interpretation path receives the raw request JSON and must return structured evidence classification. The OpenAI semantic-normalization path receives the raw request and interpretation, then returns normalized labels, constraints, missing facts, contradictions, and human questions. The OpenAI drafting path receives the normalized request JSON plus interpreted risk signals. It must return structured output with:
 
 - a short bulletin blurb;
 - a newsletter snippet;
@@ -58,7 +64,9 @@ The prompt is intentionally narrow:
 - unresolved issues must stay visible in `reviewNotes` or `policyConcerns`;
 - policy-sensitive interpretation must remain grounded in supplied evidence.
 
-That keeps the AI step useful without making it the authority on policy or operational truth.
+The OpenAI policy-analysis path receives the normalized request and draft output, then proposes evidence-backed findings, severity, confidence, and coordinator questions. It still cannot approve publication or override deterministic rules.
+
+That keeps the AI steps useful without making them the final authority on policy or operational truth.
 
 ## Policy Logic
 
@@ -69,15 +77,17 @@ The policy gate exists because good workshop copy is not enough to approve publi
 - an outdoor event lacks a weather fallback;
 - organizer acknowledgement of the publication policy is missing;
 - the interpretation step identifies an evidence-backed review-required concern;
-- the drafting step identifies additional concerns that should be checked before publishing.
+- the semantic-normalization step carries review-required constraints;
+- the policy-analysis step proposes review-required findings grounded in evidence;
+- the drafting step identifies additional concerns that should be checked before publishing when no policy-analysis result is present.
 
-When the interpretation or drafting step restates a canonical rule-derived issue in different words, the gate keeps the canonical flag and drops the duplicate phrasing from the organizer digest. That keeps the checked-in packet concise without hiding genuinely new AI-derived concerns.
+When interpretation, semantic normalization, policy analysis, or drafting restates a canonical rule-derived issue in different words, the gate keeps the canonical flag and drops the duplicate phrasing from the organizer digest. That keeps the checked-in packet concise without hiding genuinely new AI-derived concerns.
 
 This logic is deliberately conservative. The workflow is optimized for asynchronous decision support, not for automatic publishing.
 
 ## Evaluation Surface
 
-The bounded eval in `evals/draft_eval_cases.json` checks the interpretation-and-drafting workflow on three synthetic cases:
+The bounded eval in `evals/draft_eval_cases.json` checks the interpretation, semantic-normalization, policy-analysis, and drafting workflow on three synthetic cases:
 
 - one clean indoor request that should be publication-ready;
 - one request with accessibility and age-guidance gaps that should hold for manual review;
@@ -90,6 +100,10 @@ The eval rubric scores:
 - whether expected review flags survive the workflow.
 
 This is not a benchmark for literary quality. It is a regression surface for whether the AI-assisted path preserves operationally important facts and review blockers.
+
+`npm run eval` and `npm run eval:openai` are the local source of truth. They write local artifacts and do not require LangSmith.
+
+`npm run eval:langsmith` and `npm run eval:openai:langsmith` are optional observability adapters. They sync the same cases into a LangSmith dataset, execute the same LangGraph workflow, and attach code evaluators for review status, required terms, expected flags, and the aggregate local-pass result. These commands are useful when comparing prompt or model changes over time, but they do not replace the local regression path.
 
 ## Live Boundary Readiness
 

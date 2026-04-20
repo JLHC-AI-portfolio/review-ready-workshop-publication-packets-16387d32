@@ -7,7 +7,7 @@ The 2026 workshop dates and run timestamps in the tracked examples are sample fi
 ## Sample Packet
 
 - `examples/workshop_bulletin_run/` came from a fixture-backed `npm run demo:openai` run against `fixtures/requests/neighborhood_zine_workshop_request.json`.
-- Only the synthetic request evidence, interpreted evidence payload, normalized payload, policy output, packet files, and compact run summary were copied into the tracked tree.
+- Only the synthetic request evidence, interpreted evidence payload, semantic normalization payload, normalized payload, policy analysis, policy output, packet files, and compact run summary were copied into the tracked tree.
 - No secrets, raw provider payloads, or transient local output directories are committed.
 
 ## Eval Summary
@@ -23,4 +23,4 @@ The 2026 workshop dates and run timestamps in the tracked examples are sample fi
 ## Reproducible Review Path
 
 - `npm run demo`, `npm run eval`, `npm test`, and `npm run typecheck` are the clean-checkout no-secrets review path.
-- Those commands rebuild the same workflow shape with deterministic interpretation and drafting plus regression tests; they do not claim to recreate the checked-in OpenAI text byte for byte.
+- Those commands rebuild the same workflow shape with deterministic interpretation, semantic normalization, policy analysis, drafting, and regression tests; they do not claim to recreate the checked-in OpenAI text byte for byte.

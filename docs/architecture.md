@@ -6,9 +6,9 @@ Reviewer view:
 
 - Inputs: one public fixture request, or an optional Google Sheets row supplied with local credentials.
 - Outputs: a publication packet, organizer digest, structured JSON evidence, and a compact run trace.
-- AI role: interpret ambiguous request evidence and help draft public copy when the OpenAI path is enabled.
-- Safeguards: deterministic normalization and policy checks keep missing accessibility, age, weather, and acknowledgement details visible after AI interpretation.
-- Human decision: the workflow records `hold_for_manual_review` instead of treating AI-assisted interpretation or copy as approval.
+- AI role: interpret ambiguous evidence, normalize it into constraints and questions, draft public copy, and propose policy findings when the OpenAI path is enabled.
+- Safeguards: deterministic normalization glue and policy adjudication keep missing accessibility, age, weather, and acknowledgement details visible after AI analysis.
+- Human decision: the workflow records `hold_for_manual_review` instead of treating AI-assisted interpretation, policy analysis, or copy as approval.
 - Out of scope: production publishing, a multi-user approval UI, deployment monitoring, and organization-specific policy tuning.
 
 ## Workflow Slice
@@ -18,7 +18,7 @@ The repo models one operational workflow: convert a workshop request into a revi
 Entrypoints:
 
 - `tsx src/cli.ts run ...` runs the full workflow for either a fixture request or a Google Sheets source.
-- `tsx src/cli.ts eval ...` runs the bounded interpretation-and-drafting eval against a checked-in dataset.
+- `tsx src/cli.ts eval ...` runs the bounded AI-assisted workflow eval against a checked-in dataset.
 
 Core stages:
 
@@ -26,15 +26,19 @@ Core stages:
    The CLI resolves either the fixture adapter or the live Google Sheets adapter.
 2. `interpret_request`
    Either the deterministic interpreter or `@langchain/openai` classifies evidence for accessibility, age guidance, weather fallback, policy acknowledgement, and risk signals.
-3. `normalize_request`
-   Raw evidence plus interpreted fields becomes a stable internal shape with derived schedule labels and logistics summaries.
-4. `draft_publication`
+3. `semantic_normalization`
+   Either the deterministic fallback or `@langchain/openai` turns raw and interpreted evidence into normalized labels, constraints, missing facts, contradictions, and coordinator questions.
+4. `normalize_request`
+   Raw evidence plus semantic output becomes a stable internal shape with derived schedule labels and logistics summaries.
+5. `draft_publication`
    Either the deterministic fallback or `@langchain/openai` generates public-facing copy and issue notes.
-5. `policy_review`
+6. `policy_analysis`
+   Either the deterministic fallback or `@langchain/openai` proposes evidence-backed policy findings and follow-up questions.
+7. `policy_review`
    Explicit rules decide whether the packet can move forward automatically or must pause for manual review.
-6. `manual_review_gate` or `ready_to_publish`
+8. `manual_review_gate` or `ready_to_publish`
    The workflow records the next action instead of silently continuing.
-7. `finalize_outputs`
+9. `finalize_outputs`
    The workflow emits channel-ready content, organizer guidance, and a local trace file.
 
 ## Framework Choice
@@ -85,21 +89,71 @@ Expected headers:
 
 The adapter also tolerates camelCase variants and a few naming aliases so spreadsheet exports do not need perfect formatting before a reviewer can try the live path.
 
-## Interpretation And Drafting Layers
+## AI Service Layers
+
+The AI path is split into three layers so OpenAI remains a provider, not the workflow architecture:
+
+- `src/runtime/modelRuntime.ts` validates model environment, creates LangChain chat models, and attaches model metadata for traces.
+- `src/runtime/runnableConfig.ts` builds workflow and step `RunnableConfig` values with run names, tags, metadata, and `thread_id`.
+- `src/chains/` holds the typed LangChain chains for interpretation, semantic normalization, drafting, and policy analysis.
 
 `src/interpretation/` exposes two interchangeable implementations behind the same interface:
 
 - `deterministicInterpretationService` keeps the repo runnable with no model credentials.
-- `openaiInterpretationService` uses `@langchain/openai` and a structured JSON response contract to classify request evidence before policy-sensitive normalization.
+- `openaiInterpretationService` delegates to the shared LangChain runtime and interpretation chain to classify request evidence before policy-sensitive normalization.
 
-The interpretation layer can surface non-canonical blockers, but it cannot approve publication. The deterministic policy gate remains the authority for final hold or ready status.
+The interpretation layer can surface non-canonical blockers, but it cannot approve publication.
+
+`src/semanticNormalization/` exposes two interchangeable implementations behind the same interface:
+
+- `deterministicSemanticNormalizationService` keeps the repo runnable with no model credentials.
+- `openaiSemanticNormalizationService` delegates to the shared LangChain runtime and semantic-normalization chain to produce normalized labels, derived constraints, missing facts, contradictions, and human follow-up questions.
 
 `src/drafting/` exposes two interchangeable implementations behind the same interface:
 
 - `deterministicDraftingService` keeps the repo runnable with no model credentials.
-- `openaiDraftingService` uses `@langchain/openai` and a structured JSON response contract to generate the bulletin blurb, newsletter snippet, issue notes, and confidence note.
+- `openaiDraftingService` delegates to the shared LangChain runtime and drafting chain to generate the bulletin blurb, newsletter snippet, issue notes, and confidence note.
+
+`src/policyAnalysis/` exposes two interchangeable implementations behind the same interface:
+
+- `deterministicPolicyAnalysisService` derives policy findings from semantic constraints and draft concerns.
+- `openaiPolicyAnalysisService` delegates to the shared LangChain runtime and policy-analysis chain to propose evidence-backed findings, severity, confidence, and coordinator questions.
+
+The deterministic policy gate remains the authority for final hold or ready status.
 
 Provider and model selection live in configuration rather than in hidden code defaults. The OpenAI path requires `OPENAI_API_KEY` and `OPENAI_MODEL`.
+
+Step temperatures preserve the previous defaults while allowing runtime overrides:
+
+- `OPENAI_INTERPRETATION_TEMPERATURE`, default `0.1`.
+- `OPENAI_SEMANTIC_NORMALIZATION_TEMPERATURE`, default `0.1`.
+- `OPENAI_DRAFTING_TEMPERATURE`, default `0.2`.
+- `OPENAI_POLICY_ANALYSIS_TEMPERATURE`, default `0.1`.
+- `OPENAI_TEMPERATURE` remains a global fallback when a step-specific variable is not set.
+
+## Optional LangSmith Observability And Evals
+
+LangSmith is optional. The local packet artifacts remain the review source whether or not tracing is enabled.
+
+Tracing is enabled by LangChain/LangGraph environment variables:
+
+- `LANGSMITH_TRACING=true`.
+- `LANGSMITH_API_KEY`.
+- `LANGSMITH_PROJECT`, optional but recommended.
+
+When tracing is enabled, the graph run is named `workshop_publication_workflow` and each AI chain receives a step-specific run name such as `interpret_request`, `semantic_normalization`, `draft_publication`, or `policy_analysis`. Tags and metadata carry request ID, source mode, provider names, and model names so traced runs can be filtered without reading local files first.
+
+The local eval command remains the reproducible default:
+
+- `npm run eval`.
+- `npm run eval:openai`.
+
+The optional LangSmith eval adapter syncs the checked-in eval cases into a LangSmith dataset and runs the same workflow with code evaluators:
+
+- `npm run eval:langsmith`.
+- `npm run eval:openai:langsmith`.
+
+Those LangSmith commands require `LANGSMITH_API_KEY`; the OpenAI variant also requires `OPENAI_API_KEY` and `OPENAI_MODEL`.
 
 ## Policy And Manual Decision Boundary
 
@@ -110,6 +164,8 @@ The policy gate is intentionally explicit and easy to audit. The workflow holds 
 - an outdoor session lacks a weather fallback;
 - organizer policy acknowledgement is missing;
 - the interpretation step surfaces a new review-required concern;
+- the semantic-normalization step carries a review-required constraint;
+- the policy-analysis step proposes a review-required finding;
 - the drafting step surfaces new policy concerns worth checking before publication.
 
 The gate does not attempt to auto-resolve those issues. It records the hold status, adds the reviewer checklist to the organizer digest, and still emits a publication draft so coordinators can inspect the draft text alongside the gate decision.
@@ -120,8 +176,10 @@ A run packet contains:
 
 - `request_evidence.json`
 - `request_interpretation.json`
+- `semantic_normalization.json`
 - `normalized_request.json`
 - `draft_output.json`
+- `policy_analysis.json`
 - `policy_decision.json`
 - `publication_packet.json`
 - `publication_packet.md`

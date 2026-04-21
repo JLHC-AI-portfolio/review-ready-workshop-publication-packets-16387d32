@@ -1,10 +1,10 @@
-# Review-Ready Workshop Publication Packets
+# Workshop Publishing Review Assistant
 
-Turn one incomplete workshop request into drafted public copy, explicit review flags, and an organizer digest before anything is published.
+Help a community team turn one incomplete workshop request into drafted public copy, explicit review flags, and an organizer digest before anything is published.
 
 Small workshop teams often receive event requests as a mix of spreadsheet fields, short notes, and unresolved logistics. This repo shows how that evidence can become a review packet: the team can see what is ready to publish, what still needs a human check, and what copy was drafted for the website or newsletter.
 
-The public scenario is synthetic and harmless: every workshop detail, organizer, venue, date, and output is fictional. Example dates are not a real calendar; the source note for the checked-in examples lives in `docs/provenance.md`.
+The public scenario is synthetic and harmless: every workshop detail, organizer, venue, date, and output is fictional. Example dates are not a real calendar; the source note for the checked-in examples lives in `docs/provenance.md`. A short non-technical case study is available in [`docs/case_study.md`](docs/case_study.md).
 
 ## What A Reviewer Should Know First
 

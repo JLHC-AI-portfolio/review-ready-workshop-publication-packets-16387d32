@@ -1,6 +1,6 @@
 # Case Study For Portfolio Review
 
-Community teams lose time and take avoidable publishing risks when workshop requests arrive with mixed notes, spreadsheet fields, and unanswered logistics. This synthetic example shows how an AI-assisted review workflow can draft the public announcement while keeping missing decisions visible, so a non-technical coordinator can approve the packet before anything goes live.
+Problem type: small teams need to turn incomplete event requests into public-facing copy without losing track of unresolved approvals. This synthetic example shows how an AI-assisted review workflow can draft the public announcement while keeping missing decisions visible, so a non-technical coordinator can approve the packet before anything goes live.
 
 The sample request is deliberately fictional. It describes a neighborhood workshop with enough detail to draft useful public copy, but it also leaves accessibility confirmation and age guidance unresolved. The workflow turns that into a practical review packet instead of pretending the request is complete.
 

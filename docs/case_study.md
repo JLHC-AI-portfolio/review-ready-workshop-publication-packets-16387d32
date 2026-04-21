@@ -1,6 +1,6 @@
 # Case Study For Portfolio Review
 
-Small teams often need to turn incomplete event requests into public-facing copy without losing track of unresolved approvals. This synthetic workshop example shows how an AI-assisted review workflow can draft the public announcement while keeping missing decisions visible, so a non-technical coordinator can approve the packet before anything goes live.
+Some workflow problems are not about writing more copy; they are about helping a non-technical team move an incomplete request through a clear review process before anything public is released. This proof of concept uses LangChain-based AI steps to read the request, draft useful materials, and keep missing approvals visible instead of hiding them. The synthetic example below applies that pattern to a fictional community workshop, producing public copy, an organizer digest, and a checklist that stays held for review until the unresolved details are cleared.
 
 The sample request is deliberately fictional. It describes a neighborhood workshop with enough detail to draft useful public copy, but it also leaves accessibility confirmation and age guidance unresolved. The workflow turns that into a practical review packet instead of pretending the request is complete.
 

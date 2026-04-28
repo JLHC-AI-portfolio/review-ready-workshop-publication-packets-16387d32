@@ -1,5 +1,7 @@
 # Workshop Publishing Review Assistant
 
+This repo shows an AI-assisted review workflow that turns incomplete workshop requests into draft public copy, organizer digests, explicit review flags, and hold/publish decisions before anything is published.
+
 Help a community team turn one incomplete workshop request into drafted public copy, explicit review flags, and an organizer digest before anything is published.
 
 Small workshop teams often receive event requests as a mix of spreadsheet fields, short notes, and unresolved logistics. This repo shows how that evidence can become a review packet: the team can see what is ready to publish, what still needs a human check, and what copy was drafted for the website or newsletter.
